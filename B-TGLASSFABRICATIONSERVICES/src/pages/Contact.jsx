@@ -11,6 +11,9 @@ const INFO = [
   { icon:"🕐", label:"Hours",   val:"Monday – Saturday\n8:00 AM – 5:00 PM" },
 ];
 
+const ADDRESS = "Blk 18 Lot 13 Esperanza Homes, Can-asujan, Carcar City, Cebu, Philippines";
+const MAP_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`;
+
 export default function Contact() {
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ name:"", email:"", phone:"", service:"", message:"" });
@@ -104,6 +107,26 @@ export default function Contact() {
               )}
             </Reveal>
           </div>
+        </div>
+      </section>
+
+      {/* Map */}
+      <section style={{ background:C.off, padding:"0 0 100px" }}>
+        <div style={{ maxWidth:1280, margin:"0 auto", padding:"0 48px" }}>
+          <Reveal>
+            <p style={{ fontSize:11, color:C.navy, letterSpacing:"0.2em", textTransform:"uppercase", marginBottom:24, fontWeight:700 }}>Find Us Here</p>
+            <div style={{ border:`1px solid ${C.border}`, borderRadius:2, overflow:"hidden", height:420 }}>
+              <iframe
+                title="B & T Glass Fabrication Services location"
+                src={MAP_EMBED_SRC}
+                width="100%"
+                height="100%"
+                style={{ border:0, display:"block" }}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+            </div>
+          </Reveal>
         </div>
       </section>
     </div>
