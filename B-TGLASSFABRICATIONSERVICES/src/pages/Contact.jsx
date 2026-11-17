@@ -15,8 +15,9 @@ const INFO = [
 const ADDRESS = "Blk 18 Lot 13 Esperanza Homes, Can-asujan, Carcar City, Cebu, Philippines";
 const MAP_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`;
 
-// Get a free key at https://web3forms.com (enter the Gmail that should receive inquiries)
-const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+// Web3Forms access key (public by design — it can only send messages to the owner's inbox).
+// Can be overridden with VITE_WEB3FORMS_KEY in .env.local or Vercel env settings.
+const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY || "38abdc99-0578-4973-ae38-cd9be6686f69";
 
 export default function Contact() {
   const [sent, setSent] = useState(false);
