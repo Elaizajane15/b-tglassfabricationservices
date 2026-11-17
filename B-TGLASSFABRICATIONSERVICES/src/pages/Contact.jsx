@@ -50,11 +50,11 @@ export default function Contact() {
           subject: `New Quote Request from ${form.name} — ${form.service || "General"}`,
           from_name: "B & T Glass Quote Request",
           replyto: form.email,
-          name: form.name,
+          "Full Name": form.name,
+          "Service Needed": form.service || "Not specified",
+          "Project Details": form.message,
+          "Phone": form.phone || "Not provided",
           email: form.email,
-          phone: form.phone,
-          service: form.service || "Not specified",
-          message: form.message,
         }),
       });
       const data = await res.json();
