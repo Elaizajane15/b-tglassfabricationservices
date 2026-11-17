@@ -2,22 +2,73 @@ import { useState } from "react";
 import { C, IMG, SERVICES_DATA } from "../lib/constants";
 import Reveal from "../components/Reveal";
 import { Logo } from "../components/Logo";
+import { PhoneIcon, MailIcon, PinIcon, GlobeIcon, ClockIcon, CheckIcon } from "../components/Icons";
 
 const INFO = [
-  { icon:"📞", label:"Phone",   val:"09624920133" },
-  { icon:"✉",  label:"Email",   val:"info@bandtglass.com" },
-  { icon:"📍", label:"Address", val:"blk 18 lot 13 Esperanza Homes,\nCan-asujan, Carcar City, Cebu" },
-  { icon:"🌐", label:"Website", val:"bandtglass.com" },
-  { icon:"🕐", label:"Hours",   val:"Monday – Saturday\n8:00 AM – 5:00 PM" },
+  { icon:<PhoneIcon size={18} />, label:"Phone",   val:"09624920133" },
+  { icon:<MailIcon size={18} />,  label:"Email",   val:"elaizajanemoreno3@gmail.com" },
+  { icon:<PinIcon size={18} />,   label:"Address", val:"blk 18 lot 13 Esperanza Homes,\nCan-asujan, Carcar City, Cebu" },
+  { icon:<GlobeIcon size={18} />, label:"Website", val:"bandtglass.com" },
+  { icon:<ClockIcon size={18} />, label:"Hours",   val:"Monday – Saturday\n8:00 AM – 5:00 PM" },
 ];
 
 const ADDRESS = "Blk 18 Lot 13 Esperanza Homes, Can-asujan, Carcar City, Cebu, Philippines";
 const MAP_EMBED_SRC = `https://www.google.com/maps?q=${encodeURIComponent(ADDRESS)}&output=embed`;
 
+// Get a free key at https://web3forms.com (enter the Gmail that should receive inquiries)
+const WEB3FORMS_KEY = import.meta.env.VITE_WEB3FORMS_KEY;
+
 export default function Contact() {
   const [sent, setSent] = useState(false);
   const [form, setForm] = useState({ name:"", email:"", phone:"", service:"", message:"" });
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState("");
   const set = k => e => setForm({ ...form, [k]:e.target.value });
+
+  const handleSubmit = async () => {
+    setError("");
+    if (!form.name.trim() || !form.email.trim() || !form.message.trim()) {
+      setError("Please fill in your name, email, and project details.");
+      return;
+    }
+    if (!/^\S+@\S+\.\S+$/.test(form.email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (!WEB3FORMS_KEY) {
+      setError("Contact form is not configured yet. Please call or email us directly.");
+      return;
+    }
+    setSending(true);
+    try {
+      const res = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `New Quote Request from ${form.name} — ${form.service || "General"}`,
+          from_name: "B & T Glass Quote Request",
+          replyto: form.email,
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          service: form.service || "Not specified",
+          message: form.message,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSent(true);
+        setForm({ name:"", email:"", phone:"", service:"", message:"" });
+      } else {
+        setError(data.message || "Something went wrong. Please try again.");
+      }
+    } catch {
+      setError("Network error. Please check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
+  };
 
   return (
     <div>
@@ -45,7 +96,7 @@ export default function Contact() {
                 <p style={{ fontSize:11, color:C.navy, letterSpacing:"0.2em", textTransform:"uppercase", marginBottom:32, fontWeight:700 }}>Get In Touch</p>
                 {INFO.map(c => (
                   <div key={c.label} style={{ display:"flex", gap:20, padding:"24px 0", borderBottom:`1px solid ${C.border}`, alignItems:"flex-start" }}>
-                    <div style={{ width:44, height:44, borderRadius:"50%", background:C.off, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center", fontSize:18, flexShrink:0 }}>{c.icon}</div>
+                    <div style={{ width:44, height:44, borderRadius:"50%", background:C.off, border:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"center", color:C.navy, flexShrink:0 }}>{c.icon}</div>
                     <div>
                       <p style={{ fontSize:10, color:C.navy, letterSpacing:"0.16em", textTransform:"uppercase", marginBottom:5, fontWeight:700 }}>{c.label}</p>
                       <p style={{ fontSize:14, color:C.steel, lineHeight:1.7, whiteSpace:"pre-line" }}>{c.val}</p>
@@ -64,7 +115,7 @@ export default function Contact() {
               {sent ? (
                 <div style={{ background:C.navy, borderRadius:2, padding:"72px 56px", display:"flex", flexDirection:"column", alignItems:"flex-start", gap:20 }}>
                   <div style={{ width:60, height:60, borderRadius:"50%", border:`2px solid ${C.gold}`, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <span style={{ color:C.gold, fontSize:26 }}>✓</span>
+                    <span style={{ color:C.gold, display:"flex" }}><CheckIcon size={26} /></span>
                   </div>
                   <h3 style={{ fontFamily:"'Cormorant Garamond',Georgia,serif", fontSize:36, fontWeight:700, color:"#fff", margin:0 }}>Message Sent.</h3>
                   <p style={{ fontSize:14, color:"rgba(255,255,255,0.5)", lineHeight:1.75 }}>Thank you for reaching out. We'll be in touch within 24 hours.</p>
@@ -99,8 +150,9 @@ export default function Contact() {
                       <label style={{ fontSize:10, color:C.navy, letterSpacing:"0.16em", textTransform:"uppercase", fontWeight:700 }}>Project Details</label>
                       <textarea placeholder="Tell us about your project — dimensions, location, timeline..." value={form.message} onChange={set("message")} rows={5} style={{ background:"#fff", border:`1px solid ${C.border}`, borderRadius:1, padding:"13px 16px", fontSize:14, fontFamily:"'DM Sans',sans-serif", color:C.navy, resize:"vertical", transition:"border-color .2s" }} onFocus={e=>e.target.style.borderColor=C.navy} onBlur={e=>e.target.style.borderColor=C.border} />
                     </div>
-                    <button onClick={() => setSent(true)} style={{ background:C.navy, color:"#fff", border:"none", borderRadius:1, padding:"15px 44px", fontSize:12, cursor:"pointer", letterSpacing:"0.14em", fontFamily:"'DM Sans',sans-serif", fontWeight:700, textTransform:"uppercase", alignSelf:"flex-start", transition:"opacity .2s" }} onMouseEnter={e=>e.currentTarget.style.opacity=".85"} onMouseLeave={e=>e.currentTarget.style.opacity="1"}>
-                      Send Message
+                    {error && <p role="alert" style={{ fontSize:13, color:"#b42318", margin:0 }}>{error}</p>}
+                    <button onClick={handleSubmit} disabled={sending} style={{ background:C.navy, color:"#fff", border:"none", borderRadius:1, padding:"15px 44px", fontSize:12, cursor:sending?"wait":"pointer", opacity:sending?0.7:1, letterSpacing:"0.14em", fontFamily:"'DM Sans',sans-serif", fontWeight:700, textTransform:"uppercase", alignSelf:"flex-start", transition:"opacity .2s" }} onMouseEnter={e=>{ if(!sending) e.currentTarget.style.opacity=".85"; }} onMouseLeave={e=>{ if(!sending) e.currentTarget.style.opacity="1"; }}>
+                      {sending ? "Sending..." : "Send Message"}
                     </button>
                   </div>
                 </div>

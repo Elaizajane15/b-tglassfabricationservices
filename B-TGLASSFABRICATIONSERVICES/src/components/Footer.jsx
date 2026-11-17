@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { C, IMG } from "../lib/constants";
 import { LogoFull } from "./Logo";
+import { PhoneIcon, MailIcon, PinIcon, GlobeIcon } from "./Icons";
 
 const PAGES = [
   { label: "Home", to: "/" },
@@ -27,9 +28,9 @@ export default function Footer() {
         </div>
         <div>
           <p style={{ fontSize:10, color:C.gold, letterSpacing:"0.2em", textTransform:"uppercase", marginBottom:24 }}>Contact</p>
-          {[["📞","09624920133"],["✉","info@bandtglass.com"],["📍","Carcar City, Cebu"],["🌐","bandtglass.com"]].map(([icon,val]) => (
+          {[[<PhoneIcon size={14} />,"09624920133"],[<MailIcon size={14} />,"elaizajanemoreno3@gmail.com"],[<PinIcon size={14} />,"Carcar City, Cebu"],[<GlobeIcon size={14} />,"bandtglass.com"]].map(([icon,val]) => (
             <div key={val} style={{ display:"flex", gap:10, marginBottom:14, alignItems:"flex-start" }}>
-              <span style={{ fontSize:13 }}>{icon}</span>
+              <span style={{ color:C.gold, display:"flex", marginTop:3 }}>{icon}</span>
               <span style={{ fontSize:13, color:"rgba(255,255,255,0.45)", lineHeight:1.6 }}>{val}</span>
             </div>
           ))}
